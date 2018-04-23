@@ -94,7 +94,7 @@
             
               <li class="archive-list-container">
                 <a href="javascript:;">归档</a>
-                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/">2018</a><span class="archive-list-count">1</span></li></ul>
+                <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/">2018</a><span class="archive-list-count">2</span></li></ul>
               </li>
             
           
@@ -169,6 +169,93 @@
       <div class="article-entry">
         
           <p>头像<br><img src="图片测试博客/1.png" alt=""></p>
+
+        
+      </div>
+    </div>
+
+  
+    </div>
+  
+
+  
+  
+    <div class="post-list">
+  
+
+    <div class="post-list-item article">
+      <h3 class="article-header">
+        <a href="/2018/04/23/ORB-SLAM2 + windows + usb摄像头 项目实战（一）/" >
+  图片测试博客
+</a>
+
+      </h3>
+      
+
+      <div class="article-info">
+        <a href="/2018/04/23/ORB-SLAM2 + windows + usb摄像头 项目实战（一）/"><span class="article-date">
+  2018-04-23
+</span>
+</a>
+        
+
+        
+
+      </div>
+      <div class="article-entry">
+        
+          <p><img src="ORB-SLAM2 + windows + usb摄像头 项目实战（一）/1.png" alt=""></p>
+<hr>
+<p><strong>前言：</strong>本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在<code>win</code>下移植编译<code>ORB-SLAM2</code>项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为<code>VS2017</code> + <code>C++</code>，其中难免有很多不足与疏漏之处，还望不吝赐教。</p>
+<hr>
+<p><strong>一、ORB-SLAM2 项目背景简介：</strong><br><em>1.ORB-SLAM是什么，有什么特点？</em></p>
+<p><strong>1）简介：</strong><br><code>ORB-SLAM</code>是一个用于 单目相机（后期的<code>ORB-SLAM2</code>也提供了双目立体相机以及<code>RGBD</code>相机的接口）的精确的多功能<code>SLAM(simultaneous localization and mapping，即时定位与地图构建)</code>方案。</p>
+<p><strong>2）功能：</strong><br>它能够实时计算并跟踪摄像机在空间中的<code>运动轨迹</code>，也能用于小到桌子，大到多个城市街道的多种规模的场景的<code>三维重建</code>。除此以外，它还具备较好的稳健性，当摄像头跟丢后还能够实时进行全局的重定位找回摄像头位置。最后，它针对平面以及非平面，提供了两套初始化方案，使得系统的初始化效果更为稳健。</p>
+<p><strong>3）工作原理：</strong></p>
+<p>（1）<code>第一步</code>，系统读取摄像头参数与<code>ORB</code>字典的数据，并且初始化整个系统。</p>
+<p>（2）<code>第二步</code>，它接着初始化相机位姿，初始化时采用ORB算法（算法具体介绍可以参考以下博客<a href="https://blog.csdn.net/zouzoupaopao229/article/details/52625678" target="_blank" rel="noopener">1-ORB特征提取详解</a>，<a href="https://blog.csdn.net/GH_HOME/article/details/51511471" target="_blank" rel="noopener"> 2-ORB特征检测算法小结</a>，<a href="https://blog.csdn.net/lhanchao/article/details/52612954" target="_blank" rel="noopener">3-特征点匹配——ORB算法介绍</a>） 提取第一帧图像的特征点，并且得到相连两帧图像之间的特征点的匹配；</p>
+<p>（3）<code>第三步</code>，在得到特征点匹配的信息的基础上，利用 双目立体视觉中的三角法（三角法算法数学原理参考以下博客：<a href="https://blog.csdn.net/u013832707/article/details/53781810" target="_blank" rel="noopener"> 双目测距数学原理详解</a>，代码参考以下博客：<a href="https://blog.csdn.net/Angle_Cal/article/details/50800775" target="_blank" rel="noopener"> 1- 学习OpenCV(2)双目测距原理</a>，<a href="https://blog.csdn.net/hysteric314/article/details/50456570" target="_blank" rel="noopener">2-【opencv学习】完全基于opencv的双目景深与测距的实现</a>，<a href="https://blog.csdn.net/weixin_39449570/article/details/79033314" target="_blank" rel="noopener">3- VS2017+OpenCV3.3基于SGBM算法的双目立体视觉、双目测距（双目校正和立体匹配）</a>） 恢复匹配上的特征点的深度（注意此处我们采用的是单目相机，单目相机在不同位置采集的两张图像，也可以采用类似三角化方法恢复空间点深度），并同时得到特征点的三维空间位置（此坐标成为世界坐标系，它以初始化时的相机光心为坐标系原点，此外还有相机坐标系、像素坐标系的概念，具体坐标系原理见博客<a href="https://blog.csdn.net/u013832707/article/details/53781810" target="_blank" rel="noopener"> 双目测距数学原理详解</a>中说明）。</p>
+<p>（4）<code>第四步</code>，初始化得到特征点的空间位置之后，会先将一部分符合要求的特征点标记为路标点（<code>Mappoint</code>）,再对路标点利用PnP算法（PnP算法原理参考以下视频<a href="https://v.qq.com/iframe/preview.html?width=500&amp;height=375&amp;auto=0&amp;vid=y0347epdhyu" target="_blank" rel="noopener">1- PnP算法简介与代码解析-柴政</a>以及网址<a href="http://rosclub.cn/post-566.html" target="_blank" rel="noopener">2- 【泡泡机器人公开课】第三十九课：PnP算法简介与代码解析-柴政</a>，OpenCV代码参考如博客：<a href="https://blog.csdn.net/baiyu9821179/article/details/78928776" target="_blank" rel="noopener">1- PNP algorithm</a>，<a href="https://blog.csdn.net/flyyufenfei/article/details/70440067" target="_blank" rel="noopener">2- solvepnp详解</a>，）即给定物体3D点集与对应的图像2D点集，之后进行姿态计算，求解出最终的初始化时对应的相机的位姿；其中相机位姿的表示采用四元数表示，（具体参考以下高翔博士的博客：<a href="http://www.cnblogs.com/gaoxiang12/p/5113334.html" target="_blank" rel="noopener">1- 视觉SLAM中的数学基础 第一篇 3D空间的位置表示</a>，<a href="http://www.cnblogs.com/gaoxiang12/p/5120175.html" target="_blank" rel="noopener">2- 视觉SLAM中的数学基础 第二篇 四元数</a>或者高翔博士的《视觉SLAM十四讲》这本书的物体三维空间的表示那一章节）。</p>
+<p>（5）<code>第五步</code>，初始化得到了一开始的相机位姿后，不断的重复上述的匹配，跟踪，三角化，计算出每一帧图像对应的摄像机位姿，然后再计算出每两帧图像之间相机的运动变换矩阵（包括旋转矩阵与平移矩阵两部分），然后再利用图优化（参考以下博客<a href="http://www.cnblogs.com/gaoxiang12/p/5244828.html" target="_blank" rel="noopener">1- 深入理解图优化与g2o：图优化篇</a>，<a href="http://www.cnblogs.com/gaoxiang12/p/5304272.html" target="_blank" rel="noopener">2- 深入理解图优化与g2o：g2o篇</a>，<a href="https://blog.csdn.net/u012700322/article/details/52857244" target="_blank" rel="noopener">3- g2o：一种图优化的C++框架</a>，<a href="https://blog.csdn.net/heyijia0327/article/details/47813405" target="_blank" rel="noopener">4- graph slam tutorial : g2o 的使用</a>，<a href="http://xueshu.baidu.com/s?wd=g2o:%20A%20general%20framework%20for%20graph%20optimization&amp;rsv_bp=0&amp;tn=SE_baiduxueshu_c1gjeupa&amp;rsv_spt=3&amp;ie=utf-8&amp;f=8&amp;rsv_sug2=1&amp;sc_f_para=sc_tasktype=%7BfirstSimpleSearch%7D" target="_blank" rel="noopener">5- G2o: A general framework for graph optimization</a>，或者高翔博士的《视觉SLAM十四讲》这本书）的方法对估算出的结果做优化，得到更加精确和稳健的结果，最终得到相机的运动轨迹。</p>
+<p><strong>4）总结：</strong><br>简单的说，这个系统的核心思想是，通过图像中跟踪匹配到的特征点的变化反推出相机的位置以及运动，并且用优化库对计算结果进行了优化，还增加了一些回环检测的模块加强系统的稳健性。这和人类在野外通过周围的景物确定自己的位置变化的思路很相似，都是先选定参照物，然后根据观察到的参照物的视野变化估计出自己的运动轨迹。</p>
+<p><strong>5）代码梳理分析相关博客与视频：</strong><br>（1）整个系统的代码的梳理，可以参考系列博客：</p>
+<ul>
+<li><a href="https://blog.csdn.net/u010128736/article/details/53157605" target="_blank" rel="noopener">ORB-SLAM2详解（一）简介</a></li>
+<li><a href="https://blog.csdn.net/u010128736/article/details/53169832" target="_blank" rel="noopener">ORB-SLAM2详解（二）代码逻辑</a></li>
+<li><a href="https://blog.csdn.net/u010128736/article/details/53218140" target="_blank" rel="noopener">ORB-SLAM2详解（三）自动地图初始化</a></li>
+<li><a href="https://blog.csdn.net/u010128736/article/details/53339311" target="_blank" rel="noopener">ORB-SLAM2详解（四）跟踪</a></li>
+<li><a href="https://blog.csdn.net/u010128736/article/details/53395936" target="_blank" rel="noopener">ORB-SLAM2详解（五）局部建图</a></li>
+<li><a href="https://blog.csdn.net/u010128736/article/details/53409199" target="_blank" rel="noopener">ORB-SLAM2详解（六）闭环检测</a></li>
+</ul>
+<p>（2）注释版代码：（吴博注释版）<br><a href="https://gitee.com/paopaoslam/ORB-SLAM2/" target="_blank" rel="noopener"> paopaoslam / ORB-SLAM2注释版代码</a><br>（3）<code>ORB-SLAM2</code>系统以及代码新手入门讲解视频：</p>
+<ul>
+<li><strong>冯兵讲解的版本</strong><br><a href="http://www.bilibili.com/video/av7102994?share_medium=android&amp;share_source=copy_link&amp;bbid=26A819DC-F16F-4505-804E-E569BE355ECF20735infoc&amp;ts=1524299417524" target="_blank" rel="noopener">orb-slam的简单讲解-冯兵</a></li>
+<li><strong>吴博讲解的版本</strong><br><a href="https://v.qq.com/x/page/y0344q39zew.html" target="_blank" rel="noopener">（视频1）ORB-SLAM2源码详解-吴博</a>，<br><a href="https://v.qq.com/x/page/y0344ko90m0.html" target="_blank" rel="noopener">（视频2）ORB-SLAM2源码详解-吴博</a>；<br>其中PPT可以另外单独下载，下载地址<a href="https://wenku.baidu.com/view/9749404ddcccda38376baf1ffc4ffe473368fdc9.html" target="_blank" rel="noopener">38ORB-SLAM2源码详解</a></li>
+</ul>
+<p><strong>2.<code>ORB-SLAM</code>是谁做的，它的项目源码地址是什么？</strong></p>
+<p><strong>1）作者、论文、<code>ORB-SLAM</code>项目源码 ：</strong><br><code>ORB-SLAM</code>是由<a href="http://webdiis.unizar.es/~raulmur/" target="_blank" rel="noopener">Raul Mur-Artal</a>，<a href="http://webdiis.unizar.es/~josemari/" target="_blank" rel="noopener">J. M. M. Montiel</a>和<a href="http://webdiis.unizar.es/~jdtardos/" target="_blank" rel="noopener">Juan D. Tardos</a>于2015年发表在<code>IEEE Transactions on Robotics</code>。<br>（1）项目主页网址为：<a href="http://webdiis.unizar.es/~raulmur/orbslam/" target="_blank" rel="noopener">ORB-SLAM</a>；<br>（2）论文地址为：<a href="http://webdiis.unizar.es/~raulmur/MurMontielTardosTRO15.pdf" target="_blank" rel="noopener">ORB-SLAM: A Versatile and Accurate Monocular SLAM System.</a> ；<br>（3）<code>ORB-SLAM</code>项目源码采用C++编写，运用到了<code>OpenCV</code>库，<code>DBow</code>库，<code>g2o</code>库，<code>Eigen</code>库，其中，<code>ORB-SLAM2</code>中还会用到<code>Pangolin</code>库，地址如下<a href="https://github.com/raulmur/ORB_SLAM" target="_blank" rel="noopener">ORB-SLAM</a>（说明：单目方案，<code>ROS</code>下的代码）。</p>
+<p><strong>2）<code>ORB-SLAM2</code>项目介绍以及源码地址：</strong><br> （1）<code>ORB-SLAM2</code>是<code>ORB-SLAM</code>的改进版本，它与<code>ORB-SLAM</code>的区别主要在于（参考知乎：<a href="https://www.zhihu.com/question/49030315" target="_blank" rel="noopener">ORB_SLAM与ORB_SLAM2的区别？还经常出现跟踪失败，跟踪失败的原因及解决方法</a>）</p>
+<ul>
+<li><strong>（a） </strong>它提供了立体相机与<code>RGBD</code>相机的接口；</li>
+<li><strong>（b） </strong>摆脱了对<code>ROS</code>的依赖；</li>
+<li><strong>（c） </strong>显示模块改用了<code>Pangolin</code>；</li>
+<li><strong>（d） </strong><code>ORB-SLAM</code>中做特征匹配时, 对特征尺度的计算方式貌似有误，在<code>ORB-SLAM2</code>的代码中进行了修正。</li>
+</ul>
+<p>（2）源码地址如下：<a href="https://github.com/raulmur/ORB_SLAM2" target="_blank" rel="noopener">ORB-SLAM2</a>；</p>
+<p><strong>3.本系列文章要对这个项目做哪些移植和修改？</strong></p>
+<p><strong>1）<code>win</code>下移植：</strong><br>因为项目需求，需要在<code>win</code>下运行算法，而原版的<code>ORB-SLAM</code>以及<code>ORB-SLAM2</code>都是在<code>Linux</code>系统下乃至在<code>ROS</code>框架下运行，所以需要将其移植到win下此处我们直接下载<code>GitHub</code>上别人修改好的<code>win</code>下的版本。</p>
+<p><strong>2）<code>ORB</code>读取格式的修改：</strong><br>原版的<code>ORB-SLAM</code>项目中<code>ORB</code>字典的读取采用的是<code>txt</code>文本格式，读取速度非常慢，博主电脑上每次加载字典需要<code>10</code>秒左右，此处为了加速，我们采用<code>Github</code>上网友的方案，将源码修改一下，改成<code>二进制格式</code>读写<code>ORB</code>字典，最终能达到字典加载时间缩短到<code>一两</code>秒。</p>
+<p><strong>3）摄像头的接入，主函数的修改：</strong><br>因为原版ORB-SLAM项目中的例子是基于<code>ROS</code>读取数据集中的图片,此处为了实际演示用，我们需要加入摄像头的数据采集部分的代码。</p>
+<p><strong>4）摄像头空间位置的数据的提取以及相应路标点的空间位置的数据的提取：</strong><br>因为整个系统最终的要求是要输出<code>相机位置</code>以及特定<code>障碍物的深度距离</code>，以用于之后的导航以及别的模块的整合，此处我们需要考虑如何提取这些数据。</p>
+<p><strong>二、相关源码以及库的下载：</strong></p>
+<p><strong>1.<code>win</code>下项目下载：</strong><br>下载地址：<a href="https://github.com/phdsky/ORBSLAM24Windows" target="_blank" rel="noopener">ORBSLAM24Windows</a>，具体下载以及编译问题请看后续博客。</p>
+<p><strong>2.二进制<code>ORB</code>字典读取方案源码地址：</strong><br>下载地址：<a href="https://github.com/poine/ORB_SLAM2" target="_blank" rel="noopener">二进制读写ORBSLAM</a>，此处不用下载源码，只需要观察这里是如何对<code></code>ORBSLAM2`项目进行修改的并仿照它修改源码就可以，具体修改以及编译问题请看后续博客。</p>
+<hr>
+<p><strong>参考博客</strong></p>
+<ul>
+<li><strong>参考博客1 <a href="http://blog.csdn.net/u010128736/" target="_blank" rel="noopener">sylvester的博客</a></strong> </li>
+<li><strong>参考博客2 <a href="http://www.cnblogs.com/gaoxiang12/" target="_blank" rel="noopener">半闲居士</a> </strong></li>
+</ul>
 
         
       </div>
