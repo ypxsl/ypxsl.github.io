@@ -12,18 +12,18 @@
   
 </title>
 
-<meta name="description" content="前言：本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在win下移植编译ORB-SLAM2项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为VS2017 + C++，其中难免有很多不足与疏漏之处，还望不吝赐教。  一、ORB-SLAM2 项目背景简介：1.ORB-SLAM是什么，有什么">
+<meta name="description" content="前言：本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在win下移植编译ORB-SLAM2项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为VS2017 + C++，其中难免有很多不足与疏漏之处，还望不吝赐教。  一、ORB-SLAM2 项目背景简介：1.ORB-SLAM是什么，有什么特点">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ORB-SLAM2 + windows + usb摄像头 项目实战（一）">
 <meta property="og:url" content="http://yoursite.com/2018/04/23/ORB-SLAM2 + windows + usb摄像头 项目实战（一）/index.html">
 <meta property="og:site_name" content="My Blog">
-<meta property="og:description" content="前言：本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在win下移植编译ORB-SLAM2项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为VS2017 + C++，其中难免有很多不足与疏漏之处，还望不吝赐教。  一、ORB-SLAM2 项目背景简介：1.ORB-SLAM是什么，有什么">
+<meta property="og:description" content="前言：本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在win下移植编译ORB-SLAM2项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为VS2017 + C++，其中难免有很多不足与疏漏之处，还望不吝赐教。  一、ORB-SLAM2 项目背景简介：1.ORB-SLAM是什么，有什么特点">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2018/04/23/ORB-SLAM2%20+%20windows%20+%20usb摄像头%20项目实战（一）/ORB-SLAM2%20+%20windows%20+%20usb摄像头%20项目实战（一）/1.png">
-<meta property="og:updated_time" content="2018-04-23T17:21:36.208Z">
+<meta property="og:updated_time" content="2018-04-23T17:26:45.369Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ORB-SLAM2 + windows + usb摄像头 项目实战（一）">
-<meta name="twitter:description" content="前言：本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在win下移植编译ORB-SLAM2项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为VS2017 + C++，其中难免有很多不足与疏漏之处，还望不吝赐教。  一、ORB-SLAM2 项目背景简介：1.ORB-SLAM是什么，有什么">
+<meta name="twitter:description" content="前言：本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在win下移植编译ORB-SLAM2项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为VS2017 + C++，其中难免有很多不足与疏漏之处，还望不吝赐教。  一、ORB-SLAM2 项目背景简介：1.ORB-SLAM是什么，有什么特点">
 <meta name="twitter:image" content="http://yoursite.com/2018/04/23/ORB-SLAM2%20+%20windows%20+%20usb摄像头%20项目实战（一）/ORB-SLAM2%20+%20windows%20+%20usb摄像头%20项目实战（一）/1.png">
 
 
@@ -165,9 +165,7 @@
 
   </div>
   <div class="article-entry">
-    <p><img src="ORB-SLAM2 + windows + usb摄像头 项目实战（一）/1.png" alt=""></p>
-<hr>
-<p><strong>前言：</strong>本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在<code>win</code>下移植编译<code>ORB-SLAM2</code>项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为<code>VS2017</code> + <code>C++</code>，其中难免有很多不足与疏漏之处，还望不吝赐教。</p>
+    <h2 id=""><a href="#" class="headerlink" title=""></a><img src="ORB-SLAM2 + windows + usb摄像头 项目实战（一）/1.png" alt=""></h2><p><strong>前言：</strong>本系列博客是博主本科毕业设计时的学习、探索与总结。主要是介绍了如何在<code>win</code>下移植编译<code>ORB-SLAM2</code>项目，并且接入自己的摄像头实时测试算法，最后改动源码输出我们想要的诸如相机在三维空间中的位置，路标点在三维空间中的坐标等数据。其中，开发环境为<code>VS2017</code> + <code>C++</code>，其中难免有很多不足与疏漏之处，还望不吝赐教。</p>
 <hr>
 <p><strong>一、ORB-SLAM2 项目背景简介：</strong><br><em>1.ORB-SLAM是什么，有什么特点？</em></p>
 <p><strong>1）简介：</strong><br><code>ORB-SLAM</code>是一个用于 单目相机（后期的<code>ORB-SLAM2</code>也提供了双目立体相机以及<code>RGBD</code>相机的接口）的精确的多功能<code>SLAM(simultaneous localization and mapping，即时定位与地图构建)</code>方案。</p>
